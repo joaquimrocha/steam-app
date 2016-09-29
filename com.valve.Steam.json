@@ -1,0 +1,52 @@
+{
+    "app-id": "com.valve.Steam",
+    "runtime": "org.gnome.Platform",
+    "runtime-version": "master",
+    "sdk": "org.gnome.Sdk",
+    "command": "steam",
+    "finish-args": [
+        /* X11 + XShm access */
+        "--share=ipc", "--socket=x11",
+        /* Sound access */
+        "--socket=pulseaudio",
+        /* Network access */
+        "--share=network",
+        "--devices=dri"
+    ],
+    "build-options" : {
+        "cflags": "-O2 -g",
+        "cxxflags": "-O2 -g",
+        "env": {
+            "V": "1"
+        }
+    },
+    "cleanup": ["/include", "/lib/pkgconfig",
+                "/share/pkgconfig", "/share/aclocal",
+                "/man", "/share/man", "/share/gtk-doc",
+                "/share/vala",
+                "*.la", "*.a"],
+    "modules": [
+        {
+            "name": "steam",
+            "no-autogen": true,
+            "sources" : [
+                {
+                    "type": "archive",
+                    "path": "data.tar.gz"
+                },
+                {
+                    "type": "file",
+                    "path": "steam-Makefile",
+                    "dest-filename": "Makefile"
+                }
+            ],
+            "post-install": [
+                "mkdir -p /app/share/applications/ /app/share/icons/hicolor/256x256/apps/",
+                "sed s/Icon=steam/Icon=com.valve.Steam/ /app/share/applications/steam.desktop > /app/share/applications/com.valve.Steam.desktop",
+                "echo StartupWMClass=Steam >> /app/share/applications/com.valve.Steam.desktop",
+                "cp /app/share/icons/hicolor/256x256/apps/steam.png /app/share/icons/hicolor/256x256/apps/com.valve.Steam.png",
+		"sed -i s:/usr/lib/'$STEAMPACKAGE'/bootstraplinux_'$LAUNCHSTEAMPLATFORM'.tar.xz:/app/lib/'$STEAMPACKAGE'/bootstraplinux_'$LAUNCHSTEAMPLATFORM'.tar.xz: /app/bin/steam"
+            ]
+        }
+    ]
+}
